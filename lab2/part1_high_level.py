@@ -5,7 +5,10 @@ import tensorflow as tf
 from tensorflow import keras
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
+checkpoint_path = "./keras_model/cp.ckpt"
+checkpoint_dir = os.path.dirname(checkpoint_path)
 
 fashion_mnist = keras.datasets.fashion_mnist
 (train_images, train_labels), (test_images, test_labels) = fashion_mnist.load_data()
@@ -32,6 +35,11 @@ model = keras.Sequential([
     keras.layers.Dense(10, activation=tf.nn.softmax)
 ])
 
+try:
+    model.load_weights(checkpoint_path)
+except:
+    print("No model saved.\n")
+
 model.compile(optimizer='adam', 
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
@@ -48,4 +56,6 @@ plt.show()
 
 test_loss, test_acc = model.evaluate(test_images, test_labels)
 
-print('Test accuracy:', test_acc)
+print('\nTest accuracy:', test_acc)
+print()
+model.save_weights(checkpoint_path)
