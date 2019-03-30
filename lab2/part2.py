@@ -1,4 +1,4 @@
-#from __future__ import absolute_import, division, print_function
+from __future__ import absolute_import, division, print_function
 
 import requests
 import gzip
@@ -26,7 +26,7 @@ def get_testset():
     return load_dataset(filename), testset_id
 
 
-test_images, _id = get_testset()
+
 #print (test_images, _id)
 
 #test_images = load_dataset('images_b56745b1.gz')
@@ -34,8 +34,7 @@ test_images, _id = get_testset()
 checkpoint_path = "./keras_model/cp.ckpt"
 checkpoint_dir = os.path.dirname(checkpoint_path)
 
-test_images = test_images / 255.0
-test_images = test_images.reshape(1000,28,28,1)
+
 
 tf.reset_default_graph()
 model = keras.Sequential([
@@ -54,24 +53,32 @@ try:
 except:
     print("No model saved.\n")
 
-model.compile(optimizer='adam', 
-              loss='sparse_categorical_crossentropy',
-              metrics=['accuracy'])
-model.summary()
 
-predictions_onhot = model.predict(test_images, batch_size=1000)
+for i in range(5):
+    test_images, _id = get_testset()
+    print("\n----------------------------------------------------------\ndataset ID: ", _id)
 
-predictions = []
-for p in predictions_onhot:
-    predictions.append(str(np.argmax(p)))
+    test_images = test_images / 255.0
+    test_images = test_images.reshape(1000,28,28,1)
 
-predictions = ''.join(predictions)
-print predictions
-url = 'https://courses.engr.illinois.edu/ece498icc/sp2019/lab2_request_dataset.php'
-values = {'request': 'verify', 'netid':'ltang23', 'testset_id': _id, 'prediction': predictions}
-r = requests.post(url, data=values, allow_redirects=True)
+    model.compile(optimizer='adam', 
+                loss='sparse_categorical_crossentropy',
+                metrics=['accuracy'])
+    #model.summary()
+
+    predictions_onhot = model.predict(test_images, batch_size=1000)
+
+    predictions = []
+    for p in predictions_onhot:
+        predictions.append(str(np.argmax(p)))
+
+    predictions = ''.join(predictions)
+    #print predictions
+    url = 'https://courses.engr.illinois.edu/ece498icc/sp2019/lab2_request_dataset.php'
+    values = {'request': 'verify', 'netid':'ltang23', 'testset_id': _id, 'prediction': predictions}
+    r = requests.post(url, data=values, allow_redirects=True)
 
 
-print()
-print(r.text)
+    #print()
+    print("Test set accuracy (out of 1000):", r.text)
 

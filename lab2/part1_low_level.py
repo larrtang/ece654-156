@@ -9,11 +9,11 @@ import matplotlib.pyplot as plt
 fashion_mnist = keras.datasets.fashion_mnist
 (train_images, train_labels), (test_images, test_labels) = fashion_mnist.load_data()
 
-model = './LL_model2/model.ckpt'
+model = './LL_model_test/model.ckpt'
 
 # Training Parameters
-learning_rate = 0.0001
-num_steps = 3
+learning_rate = 0.001
+num_steps = 10
 batch_size = 300
 display_step = 1
 train_size = 60000
@@ -80,7 +80,7 @@ def conv_net(x, weights, biases, dropout):
 
 # Store layers weight & bias
 weights = {
-    # 5x5 conv, 1 input, 32 outputs
+    # 5x5 conv, 1 input, 32 outputs0
     'wc1': tf.Variable(tf.random_normal([5, 5, 1, 3], stddev=0.1)),
     # 5x5 conv, 32 inputs, 64 outputs
     'wc2': tf.Variable(tf.random_normal([3, 3, 3, 3], stddev=0.1)),
@@ -154,21 +154,26 @@ with tf.Session() as sess:
                 loss, acc = sess.run([loss_op, accuracy], feed_dict={X: batch_x,
                                                                     Y: batch_y,
                                                                     keep_prob: 1.0})
-                print("Step " + str(step) + ", Minibatch Loss= " + \
-                    "{:.4f}".format(loss) + ", Training Accuracy= " + \
-                    "{:.3f}".format(acc))
+                # print("Step " + str(step) + ", Minibatch Loss= " + \
+                #     "{:.4f}".format(loss) + ", Training Accuracy= " + \
+                #     "{:.3f}".format(acc))
             i += batch_size
-            losses_epoch.append(loss)
-        losses.append(sum(losses_epoch)/len(losses_epoch))
-
-
-    print("Optimization Finished!")
-
-    # Calculate accuracy for 256 MNIST test images
-    print("Testing Accuracy:", \
-        sess.run(accuracy, feed_dict={X: test_images,
+            
+         #   losses_epoch.append(loss)
+        #losses.append(sum(losses_epoch)/len(losses_epoch))
+        
+        l, a = sess.run([loss_op, accuracy], feed_dict={X: test_images,
                                       Y: test_labels_onehot,
-                                      keep_prob: 1.0}))
+                                      keep_prob: 1.0})
+        losses.append(l)
+
+        #print("Optimization Finished!")
+        
+        # Calculate accuracy for 256 MNIST test images
+        print("Testing Accuracy:", \
+            sess.run(accuracy, feed_dict={X: test_images,
+                                        Y: test_labels_onehot,
+                                        keep_prob: 1.0}))
     
     save_path = saver.save(sess, model)
                                       
